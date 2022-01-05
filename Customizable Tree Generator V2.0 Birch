@@ -1,0 +1,128 @@
+@name Customizable Tree Generator V2.0 Birch
+@persist [WoodMDL WoodTXT]:string [WoodCLR WoodCLR2]:vector Height Height2 Joints BranchesJoints Width Rand2
+@persist MaxHeight MinHeight MaxSize MinSize MaxWidth MinWidth MaxJoints MinJoints TowarsBottomSize
+@persist MaxBranchWidth MinBranchWidth MaxBranchJoints MinBranchJoints
+@persist MaxAngle MinAngle MaxBranchStartAngle MinBranchStartAngle MaxBranchAngle MinBranchAngle BranchBaseAngle TowardsTopAngle
+@persist MaxBranches MinBranches A A2 Val
+if(first()){
+
+WoodMDL="models/sprops/cuboids/height24/size_1/cube_24x24x24.mdl"
+WoodTXT="model/debug/debugwhite"
+WoodCLR=vec(255,255,255)
+WoodCLR2=vec(255,255,255)
+
+MaxHeight=35
+MinHeight=18
+
+MaxSize=2
+MinSize=1
+
+MaxWidth=3.5
+MinWidth=2.5
+
+MaxJoints=10
+MinJoints=5
+
+
+MaxBranchWidth=1.5
+MinBranchWidth=0.5
+
+MaxBranchJoints=3
+MinBranchJoints=2
+
+
+MaxAngle=2
+MinAngle=-2
+
+MaxBranchStartAngle=25
+MinBranchStartAngle=-25
+
+MaxBranchAngle=15
+MinBranchAngle=-15
+
+MaxBranches=50
+MinBranches=25
+
+BranchBaseAngle=90
+
+TowardsTopAngle=-35
+
+BranchesCount=randint(MinBranches,MaxBranches)
+A=BranchesCount
+Height=randint(MinHeight,MaxHeight)
+Width=randint(MinWidth,MaxWidth)
+#[
+    1 E2Unit * 0.403 = ~1 CM
+]#
+}
+
+if(changed(Height)&Height){
+timer("create",100)
+}
+
+if(clk("create")){
+    Joints=randint(MinJoints,MaxJoints)
+    Height2=(Height*100)*0.403
+    for(I=1,Joints){
+        holoCreate(I)
+        holoModel(I,WoodMDL)
+        holoMaterial(I,WoodTXT)
+        holoColor(I,WoodCLR)
+        holoParent(I,entity())
+        if(I==1){
+            holoPos(I,entity():toWorld(vec(0,0,0)))
+            holoAng(I,entity():toWorld(ang(randint(MinAngle,MaxAngle),randint(-900,900),randint(MinAngle,MaxAngle))/2))
+        }else{
+            holoPos(I,holoEntity(I-1):toWorld(vec(0,0,Height2/(Joints-1))))
+            holoAng(I,holoEntity(I-1):toWorld(ang(randint(MinAngle,MaxAngle),0,randint(MinAngle,MaxAngle))))
+        }
+        holoScaleUnits(I,(vec((Width-(I*0.25))*1.5,(Width-(I*0.25))*1.5,(Height2/(Joints-1)*(0.3325/2)))*6.55)/1.06)
+    }
+    timer("offset",100)
+}
+if(clk("offset")){
+    for(I=1,Joints){
+        holoPos(I,holoEntity(I):toWorld(vec(0,0,(Height2/(Joints-1)*(0.3325/2)))*3))
+    }
+    timer("branches",100)
+}
+if(clk("branches")){
+    A=A-1
+    A2=A2+BranchesJoints
+    BranchesJoints=randint(MinBranchJoints,MaxBranchJoints)
+    Rand2=(randint((BranchesJoints*50),(BranchesJoints*50)*1.2)/BranchesJoints)
+        Rand=randint(1,Joints)
+            for(I2=1,BranchesJoints){
+                I3=I2+Joints
+                holoCreate(I3+A2)
+                holoModel(I3+A2,WoodMDL)
+                holoMaterial(I3+A2,WoodTXT)
+                holoColor(I3+A2,WoodCLR2)
+                holoParent(I3+A2,entity())
+                if(I3==1+Joints){
+                    if(Rand==Joints){
+                        holoPos(I3+A2,holoEntity(Rand):toWorld(vec(0,0,randint(0,(Height2/(Joints-1))*0.5))))
+                    }elseif(Rand==1){
+                        holoPos(I3+A2,holoEntity(Rand):toWorld(vec(0,0,randint(0,3+((Height2/(Joints-1))-3)))))
+                    }else{
+                        holoPos(I3+A2,holoEntity(Rand):toWorld(vec(0,0,randint(0,(Height2/(Joints-1))))))
+                    }
+                    holoAng(I3+A2,holoEntity(Rand):toWorld(ang((TowardsTopAngle/1+(Joints-Rand))+BranchBaseAngle+randint(MinBranchStartAngle,MaxBranchStartAngle)+randint(-8,8),randint(-360,360),0)))
+                }else{
+                    holoPos(I3+A2,holoEntity((I3-1)+A2):toWorld(vec(0,0,Rand2+(Joints-Rand)*15)))
+                    holoAng(I3+A2,holoEntity((I3-1)+A2):toWorld(ang(randint(MinBranchAngle,MaxBranchAngle),0,randint(MinBranchAngle,MaxBranchAngle))))
+                }
+                holoScaleUnits(I3+A2,(vec(Width-(I3*0.15),Width-(I3*0.15),(Rand2+(Joints-Rand)*15)*0.225)*5)/1.06)
+                Val=(((Rand2+(Joints-Rand)*15)*0.225)*5)/1.06
+            }
+    if(A>0){
+        timer("branches",1000)
+        timer("offset2",100)
+    }
+}
+if(clk("offset2")){
+    for(I2=1,BranchesJoints){
+        I3=I2+Joints
+        holoPos(I3+A2,holoEntity(I3+A2):toWorld(vec(0,0,Val*0.46)))
+    }
+}
