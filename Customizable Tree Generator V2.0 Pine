@@ -7,9 +7,9 @@
 if(first()){
 
 WoodMDL="models/sprops/cuboids/height24/size_1/cube_24x24x24.mdl"
-WoodTXT="model/debug/debugwhite"
-WoodCLR=vec(255,255,255)
-WoodCLR2=vec(255,255,255)
+WoodTXT="models/debug/debugwhite"
+WoodCLR=vec(42,47,35)
+WoodCLR2=vec(42,47,35)
 
 MaxHeight=65
 MinHeight=40
